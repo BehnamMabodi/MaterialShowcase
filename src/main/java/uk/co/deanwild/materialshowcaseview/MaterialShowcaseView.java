@@ -70,7 +70,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private Handler mHandler;
     private long mDelayInMillis = ShowcaseConfig.DEFAULT_DELAY;
     private int mBottomMargin = 0;
-    private int mHorizontalMargin = 0;
+    private int mRightMargin = 0;
     private boolean mSingleUse = false; // should display only once
     private PrefsManager mPrefsManager; // used to store state doe single use mode
     List<IShowcaseListener> mListeners; // external listeners who want to observe when we show and dismiss
@@ -298,10 +298,18 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
              */
             if (!mRenderOverNav && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 mBottomMargin = getSoftButtonsBarSizePort((Activity) getContext());
+                mRightMargin = getSoftButtonsBarHorizontalSizePort((Activity) getContext());
+
+
                 FrameLayout.LayoutParams contentLP = (LayoutParams) getLayoutParams();
 
-                if (contentLP != null && contentLP.bottomMargin != mBottomMargin)
-                    contentLP.bottomMargin = mBottomMargin;
+                if (contentLP != null) {
+                    if (contentLP.bottomMargin != mBottomMargin)
+                        contentLP.bottomMargin = mBottomMargin;
+                    if (contentLP.rightMargin != mRightMargin)
+                        contentLP.rightMargin = mRightMargin;
+                }
+
             }
 
             // apply the target position
@@ -872,7 +880,24 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
         return 0;
     }
-    
+
+    public static int getSoftButtonsBarHorizontalSizePort(Activity activity) {
+        // getRealMetrics is only available with API 17 and +
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+
+            DisplayMetrics metrics = new DisplayMetrics();
+            activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+            int usableWidth = metrics.widthPixels;
+            activity.getWindowManager().getDefaultDisplay().getRealMetrics(metrics);
+            int realWidth = metrics.widthPixels;
+            if (realWidth > usableWidth)
+                return realWidth - usableWidth;
+            else
+                return 0;
+        }
+        return 0;
+    }
+
 
     private void setRenderOverNavigationBar(boolean mRenderOverNav) {
         this.mRenderOverNav = mRenderOverNav;

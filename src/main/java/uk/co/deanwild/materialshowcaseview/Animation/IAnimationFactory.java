@@ -1,7 +1,9 @@
-package uk.co.deanwild.materialshowcaseview;
+package uk.co.deanwild.materialshowcaseview.Animation;
 
 import android.graphics.Point;
 import android.view.View;
+
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 
 
 public interface IAnimationFactory {

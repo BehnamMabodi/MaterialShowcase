@@ -1,5 +1,6 @@
 package uk.co.deanwild.materialshowcaseview;
 
+import android.animation.Animator;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
@@ -20,6 +21,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
@@ -28,6 +30,9 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.co.deanwild.materialshowcaseview.Animation.AnimationFactory;
+import uk.co.deanwild.materialshowcaseview.Animation.IAnimationFactory;
+import uk.co.deanwild.materialshowcaseview.Animation.MaterialInterpolator.FastOutSlowInInterpolator;
 import uk.co.deanwild.materialshowcaseview.shape.CircleShape;
 import uk.co.deanwild.materialshowcaseview.shape.NoShape;
 import uk.co.deanwild.materialshowcaseview.shape.RectangleShape;
@@ -67,7 +72,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private AnimationFactory mAnimationFactory;
     private boolean mShouldAnimate = true;
     private long mFadeDurationInMillis = ShowcaseConfig.DEFAULT_FADE_TIME;
-    private Handler mHandler;
+    private static Handler mHandler;
     private long mDelayInMillis = ShowcaseConfig.DEFAULT_DELAY;
     private int mBottomMargin = 0;
     private int mRightMargin = 0;
@@ -789,7 +794,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             public void run() {
 
                 if (mShouldAnimate) {
-                    fadeIn();
+                    animateIn();
                 } else {
                     setVisibility(VISIBLE);
                     notifyOnDisplayed();
@@ -817,18 +822,74 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
     }
 
-    public void fadeIn() {
+    private int getFinalRadius() {
+        int cx = mTarget.getPoint().x;
+        int cy = mTarget.getPoint().y;
+
+        // int finalRadius = Math.max(this.getMeasuredWidth() - cx / 2, this.getMeasuredHeight() - cy / 2);
+        //     int finalRadius = Math.max(this.getMeasuredWidth() - cx / 2, this.getMeasuredHeight() - cy / 2);
+        int finalRadius1 = (int) (Math.sqrt(Math.pow(cx, 2) + Math.pow(cy, 2)));
+        int finalRadius2 = (int) (Math.sqrt(Math.pow(this.getMeasuredWidth() - cx, 2) + Math.pow(cy, 2)));
+        int finalRadius3 = (int) (Math.sqrt(Math.pow(cx, 2) + Math.pow(this.getMeasuredHeight() - cy, 2)));
+        int finalRadius4 = (int) (Math.sqrt(Math.pow(this.getMeasuredWidth() - cx, 2) + Math.pow(this.getMeasuredHeight() - cy, 2)));
+
+        return Math.max(Math.max(finalRadius1, finalRadius2), Math.max(finalRadius3, finalRadius4));
+    }
+
+    public void animateIn() {
         setVisibility(INVISIBLE);
 
-        mAnimationFactory.fadeInView(this, mFadeDurationInMillis,
-                new IAnimationFactory.AnimationStartListener() {
-                    @Override
-                    public void onAnimationStart() {
-                        setVisibility(View.VISIBLE);
-                        notifyOnDisplayed();
-                    }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            int cx, cy;
+            if (mShape.getWidth() != 0) {
+                cx = mTarget.getPoint().x;
+                cy = mTarget.getPoint().y;
+            } else {
+                cx = this.getMeasuredWidth() / 2;
+                cy = this.getMeasuredHeight() / 2;
+            }
+
+            // create the animator for this view (the start radius is zero)
+            Animator anim = ViewAnimationUtils.createCircularReveal(this, cx, cy, 0, getFinalRadius());
+            anim.setInterpolator(new FastOutSlowInInterpolator());
+            anim.setDuration(900);
+            anim.addListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animator) {
+                    setVisibility(View.VISIBLE);
+                    notifyOnDisplayed();
                 }
-        );
+
+                @Override
+                public void onAnimationEnd(Animator animator) {
+
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animator) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animator) {
+
+                }
+            });
+            // make the view visible and start the animation
+
+            anim.start();
+        } else {
+            mAnimationFactory.fadeInView(this, mFadeDurationInMillis,
+                    new IAnimationFactory.AnimationStartListener() {
+                        @Override
+                        public void onAnimationStart() {
+                            setVisibility(View.VISIBLE);
+                            notifyOnDisplayed();
+                        }
+                    }
+            );
+        }
+
     }
 
     public void fadeOut() {

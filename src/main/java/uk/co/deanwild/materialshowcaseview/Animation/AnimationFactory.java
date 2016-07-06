@@ -1,4 +1,4 @@
-package uk.co.deanwild.materialshowcaseview;
+package uk.co.deanwild.materialshowcaseview.Animation;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
@@ -7,17 +7,20 @@ import android.graphics.Point;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
+import uk.co.deanwild.materialshowcaseview.Animation.MaterialInterpolator.FastOutSlowInInterpolator;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 
-public class AnimationFactory implements IAnimationFactory{
+
+public class AnimationFactory implements IAnimationFactory {
 
     private static final String ALPHA = "alpha";
     private static final float INVISIBLE = 0f;
     private static final float VISIBLE = 1f;
 
-    private final AccelerateDecelerateInterpolator interpolator;
+    private final FastOutSlowInInterpolator interpolator;
 
     public AnimationFactory() {
-        interpolator = new AccelerateDecelerateInterpolator();
+        interpolator = new FastOutSlowInInterpolator();
     }
 
     @Override

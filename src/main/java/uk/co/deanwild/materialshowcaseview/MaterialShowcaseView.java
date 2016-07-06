@@ -314,6 +314,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                     if (contentLP.rightMargin != mRightMargin)
                         contentLP.rightMargin = mRightMargin;
                 }
+                setPadding(getPaddingLeft() , (int) getResources().getDimension(R.dimen.ScrollbarHeight), getPaddingRight() , getBottom());
 
             }
 
@@ -838,58 +839,68 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     public void animateIn() {
         setVisibility(INVISIBLE);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            int cx, cy;
-            if (mShape.getWidth() != 0) {
-                cx = mTarget.getPoint().x;
-                cy = mTarget.getPoint().y;
-            } else {
-                cx = this.getMeasuredWidth() / 2;
-                cy = this.getMeasuredHeight() / 2;
-            }
-
-            // create the animator for this view (the start radius is zero)
-            Animator anim = ViewAnimationUtils.createCircularReveal(this, cx, cy, 0, getFinalRadius());
-            anim.setInterpolator(new FastOutSlowInInterpolator());
-            anim.setDuration(900);
-            anim.addListener(new Animator.AnimatorListener() {
-                @Override
-                public void onAnimationStart(Animator animator) {
-                    setVisibility(View.VISIBLE);
-                    notifyOnDisplayed();
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                int cx, cy;
+                if (mShape.getWidth() != 0) {
+                    cx = mTarget.getPoint().x;
+                    cy = mTarget.getPoint().y;
+                } else {
+                    cx = this.getMeasuredWidth() / 2;
+                    cy = this.getMeasuredHeight() / 2;
                 }
 
-                @Override
-                public void onAnimationEnd(Animator animator) {
-
-                }
-
-                @Override
-                public void onAnimationCancel(Animator animator) {
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animator animator) {
-
-                }
-            });
-            // make the view visible and start the animation
-
-            anim.start();
-        } else {
-            mAnimationFactory.fadeInView(this, mFadeDurationInMillis,
-                    new IAnimationFactory.AnimationStartListener() {
-                        @Override
-                        public void onAnimationStart() {
-                            setVisibility(View.VISIBLE);
-                            notifyOnDisplayed();
-                        }
+                // create the animator for this view (the start radius is zero)
+                Animator anim = ViewAnimationUtils.createCircularReveal(this, cx, cy, 0, getFinalRadius());
+                anim.setInterpolator(new FastOutSlowInInterpolator());
+                anim.setDuration(900);
+                anim.addListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+                        setVisibility(View.VISIBLE);
+                        notifyOnDisplayed();
                     }
-            );
-        }
 
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
+                // make the view visible and start the animation
+
+                anim.start();
+            } else {
+                mAnimationFactory.fadeInView(this, mFadeDurationInMillis,
+                        new IAnimationFactory.AnimationStartListener() {
+                            @Override
+                            public void onAnimationStart() {
+                                setVisibility(View.VISIBLE);
+                                notifyOnDisplayed();
+                            }
+                        }
+                );
+            }
+        } catch (Exception e) {
+        }
+        mAnimationFactory.fadeInView(this, mFadeDurationInMillis,
+                new IAnimationFactory.AnimationStartListener() {
+                    @Override
+                    public void onAnimationStart() {
+                        setVisibility(View.VISIBLE);
+                        notifyOnDisplayed();
+                    }
+                }
+        );
     }
 
     public void fadeOut() {

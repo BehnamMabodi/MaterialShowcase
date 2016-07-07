@@ -314,7 +314,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                     if (contentLP.rightMargin != mRightMargin)
                         contentLP.rightMargin = mRightMargin;
                 }
-                setPadding(getPaddingLeft() , (int) getResources().getDimension(R.dimen.ScrollbarHeight), getPaddingRight() , getBottom());
+                setPadding(getPaddingLeft(), (int) getResources().getDimension(R.dimen.ScrollbarHeight), getPaddingRight(), getPaddingBottom());
 
             }
 
